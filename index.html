@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muestras</title>
+
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-3.3.0.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.3.0.min.js"></script>
+    <script type="text/javascript" src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.3.0.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@holoviz/panel@1.3.1/dist/panel.min.js"></script>
+
+    <!-- PyScript CSS -->
+    <link rel="stylesheet" href="https://pyscript.net/releases/2023.05.1/pyscript.css" />
+    
+    <!-- This script tag bootstraps PyScript -->
+    <script defer src="https://pyscript.net/releases/2023.05.1/pyscript.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+          <a class="navbar-brand" href="#">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-graph-up" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07Z"/>
+              </svg>
+          </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="col-sm text-start">
+            <p class="text-secondary fw-bold">  &copy; Derechos Reservados - Esteban Arroyo 2023</p>
+          </div>
+          <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+            <div class="navbar-nav ms-auto">
+              <a class="nav-link" href="#inicio">Inicio</a>
+              <a class="nav-link" href="#">estebanlab@gmail.com</a>
+              <!-- <a class="nav-link" href="#">Otros</a>-->
+            </div>
+          </div>
+        </div>
+    </nav>
+    
+    <div class="container py-2">
+        <h4 class="text-center">Cálculo de Tamaños muestrales y muestreo estratificado proporcional</h4>
+    </div>
+
+    <div class="container py-2">
+        <nav>
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+              <a class="nav-link active" id="nav-clave-tab" data-bs-toggle="tab" href="#clave" role="tab" aria-controls="nav-clave" aria-selected="false">Tamaño Muestral según varianza</a>
+              <a class="nav-link" id="nav-pdf-tab" data-bs-toggle="tab" href="#mu" role="tab" aria-controls="nav-mu" aria-selected="false">Tamaño Muestral según la porporción</a>
+              <a class="nav-link" id="nav-pdf-tab" data-bs-toggle="tab" href="#pdf" role="tab" aria-controls="nav-pdf" aria-selected="false">Muestreo Estratificado</a>
+            </div>
+        </nav>
+
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="clave" role="tabpanel" aria-labelledby="clave-tab">
+                <h4 class="py-2">Calcular el tamaño de una muestra según varianza</h4>
+                <h5 class="py-1">Ingrese los valores de los siguientes parámetros</h5>
+                <div class="row">
+                    <div class="col">
+                        <div id="parametros" class="py-1"></div>
+                    </div>
+                    <div class="col">
+                        <h5 class="py-1">* Niveles y coeficientes de confianza</h5>
+                        <img src="confianza.png" width="800"/>
+                        <b><div id="salida" class="py-2"></div></b>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="mu" role="tabpanel" aria-labelledby="mu-tab">
+                <h4 class="py-2">Para calcular el tamaño de una muestra según la porporción, ingrese los siguientes parámetros</h4>
+                <div class="row">
+                    <div class="col">
+                        <div id="valores" class="py-1"></div>
+                    </div>
+                    <div class="col">
+                        <h5 class="py-1">* Niveles y coeficientes de confianza</h5>
+                        <img src="confianza.png" width="800"/>
+                        <b><div id="salida2" class="py-2"></div></b>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="pdf" role="tabpanel" aria-labelledby="pdf-tab">
+                <h4 class="py-2">Ingrese la cantidad de estratos a muestrear</h4>
+                <div id="ingreso" class="py-2"></div>
+                <div id="estratos" class="py-2"></div>
+                <div id="muestra" class="py-1"></div>
+                <div id="muestras" class="py-1"></div>
+            </div>
+
+        </div>
+
+    </div>
+    
+<py-config>
+packages = ["https://cdn.holoviz.org/panel/1.3.1/dist/wheels/bokeh-3.3.0-py3-none-any.whl", 
+"https://cdn.holoviz.org/panel/1.3.1/dist/wheels/panel-1.3.1-py3-none-any.whl"]
+</py-config>            
+
+       
+<py-script>
+import io
+import js
+from js import document
+import panel as pn
+import pandas as pd
+#import random
+#from random import sample
+    
+pn.extension()
+
+#Para generar tamaño de muestra según varianza
+
+inp_confianza = pn.widgets.FloatInput(name='Ingresa Coeficiente de Confianza*', value=0., step=1e-1, start=0, end=1000, width=100)
+inp_sd = pn.widgets.FloatInput(name='Ingresa Desviación Típica de la Población', value=0., step=1e-1, start=0, end=1000, width=100)
+inp_error = pn.widgets.FloatInput(name='Ingresa Error máximo admisible', value=0., step=1e-1, start=0, end=1000, width=100)
+inp_pob = pn.widgets.IntInput(name='Ingresa Tamaño de la Población', value=0, step=1, start=0, end=100000, width=100)
+button_upload = pn.widgets.Button(name='Calcular', button_type='primary', width=100)
+col = pn.Column(inp_confianza, inp_sd, inp_error, inp_pob, button_upload).servable(target='parametros')
+
+
+def cal_muestra(*ags, **kws):
+    if inp_confianza is not None:
+        document.getElementById('salida').innerHTML=""
+        z = inp_confianza.value
+        s = inp_sd.value
+        d = inp_error.value 
+        N = inp_pob.value
+        n1 = (z*s/d)**2       #Tamaño de la Muestra
+        if (N == 0):
+            pn.Column("### El tamaño de muestra es:", n1).servable(target='salida')
+        else:
+            n = n1/(1+(n1/N))    #Tamaño de la Muestra aplicando la corrección para poblaciones finitas
+            pn.Column("### El tamaño de muestra es:", n).servable(target='salida')
+
+
+button_upload.on_click(cal_muestra) 
+
+
+
+#Para generar cantidad de estratos
+inp_estra = pn.widgets.IntInput(name='Estratos', value=0, step=1, start=0, end=10000)
+button_cargar = pn.widgets.Button(name='Procesar', button_type='primary', width=100)
+pn.Column(inp_estra, button_cargar, height=100).servable(target="ingreso")
+
+#Para calcular muestreo por estratos
+inp_muestra = pn.widgets.IntInput(name='Ingrese el tamaño muestra', value=0, step=1, start=0, end=10000, width=100)
+button_cal = pn.widgets.Button(name='Calcular', button_type='primary', width=100)
+col_mues = pn.Column('### Ingrese el Tamaño de la muestra', inp_muestra, button_cal)
+
+
+def n_estratos(*ags, **kws):
+    n = 1
+    while n <= inp_estra.value:
+        globals()["estra%s" % n]= pn.widgets.IntInput(name='Tamaño estrato %s'% n, value=0, step=1, start=0, end=10000, width=100)
+        pn.Row(globals()["estra%s" % n]).servable(target='estratos')
+        n +=1
+    col_mues.servable(target='muestra')
+    button_cal.on_click(on_btn_click)
+
+button_cargar.on_click(n_estratos) 
+
+def on_btn_click(*ags, **kws):
+    document.getElementById('muestras').innerHTML=""
+    df = pd.DataFrame()  #Definimos un dataframe vacio
+    estratos_n=[]    #Se cargan los estratos
+    proporciones=[]  #Se cargan las porporciones
+    estra_prop = []  #Se cargan los nuevos tamaños cada estrato
+    suma=0
+    n = 1
+    while n <= inp_estra.value:
+        estratos_n.append(globals()["estra%s" % n].value)
+        n +=1
+    for i in estratos_n:
+        suma += i
+    for i in estratos_n:
+        proporciones.append(i/suma)
+    #pyscript.write('muestras', proporciones)
+    for i in proporciones:
+        estra_prop.append(i * inp_muestra.value)
+    df['Poblacion'] = estratos_n
+    df['Propocion'] = proporciones
+    df['Muestra'] = estra_prop
+    df_pane = pn.pane.DataFrame(df, col_space=80, width=800, justify='left', index=False)
+    pn.Column("## Muestreo estratificado porporcional", df_pane).servable(target='muestras')
+
+
+#Para generar tamaño de muestra según proporción
+
+inp_confian = pn.widgets.FloatInput(name='Ingresa Coeficiente de Confianza*', value=0., step=1e-1, start=0, end=1000, width=100)
+inp_prop = pn.widgets.FloatInput(name='Ingresa la porporción poblacional', value=0., step=1e-1, start=0, end=1000, width=100)
+inp_error2 = pn.widgets.FloatInput(name='Ingresa Error máximo admisible', value=0., step=1e-1, start=0, end=1000, width=100)
+inp_pobla = pn.widgets.IntInput(name='Ingresa Tamaño de la Población', value=0, step=1, start=0, end=100000, width=100)
+button_upload2 = pn.widgets.Button(name='Calcular', button_type='primary', width=100)
+col = pn.Column(inp_confian, inp_prop, inp_error2, inp_pobla, button_upload2).servable(target='valores')
+
+def cal_muestra2(*ags, **kws):
+    if inp_confian is not None:
+        document.getElementById('salida2').innerHTML=""
+        z = inp_confian.value
+        p = inp_prop.value
+        q = 1 - p
+        e = inp_error2.value 
+        N = inp_pobla.value
+        n1 = ((z**2)*p*q)/(e**2)       #Tamaño de la Muestra
+        if (N == 0):
+            pn.Column("### El tamaño de muestra es:", n1).servable(target='salida2')
+        else:
+            n = n1/(1+(n1/N))              #Tamaño de la Muestra aplicando la corrección para poblaciones finitas
+            pn.Column("### El tamaño de muestra es:", n).servable(target='salida2')
+
+
+button_upload2.on_click(cal_muestra2) 
+
+</py-script>
+
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" integrity="sha384-b5kHyXgcpbZJO/tY9Ul7kGkf1S0CWuKcCD38l8YkeH8z8QjE0GmW1gYU5S9FOnJ0" crossorigin="anonymous"></script>
+</body>
+</html>
